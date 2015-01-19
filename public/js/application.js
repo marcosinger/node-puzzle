@@ -4,7 +4,6 @@ $(function() {
   var cardOptions;
 
   var fillCard = function(data) {
-
     cardOptions = {
       id: data.id,
       position: data.position,
@@ -16,6 +15,8 @@ $(function() {
     $card.css({background: cardOptions.color, display: 'none'});
     $card.find('h1').text(cardOptions.position);
     $card.fadeIn();
+    $card.css('display', 'table');
+    $card.removeAttr('data-state');
   }
 
   socket.on('welcome', fillCard);
@@ -24,5 +25,6 @@ $(function() {
   $card.on('click', function(e){
     e.preventDefault();
     socket.emit('click', cardOptions);
+    $(this).attr('data-state', 'selected');
   });
 });
