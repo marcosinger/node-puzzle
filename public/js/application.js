@@ -10,8 +10,6 @@ $(function() {
       color: data.color
     }
 
-    console.log(cardOptions)
-
     $card.css({background: cardOptions.color, display: 'none'});
     $card.find('h1').text(cardOptions.position);
     $card.fadeIn();
