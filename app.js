@@ -31,14 +31,9 @@ io.on('connection', function (socket) {
   ++numUsers;
   console.log('[NEW USER] - We have %d users connected', numUsers);
 
-  var user = {
-    id: socket.id,
-    position: numUsers,
-    color: colors[Math.floor((Math.random() * 9))]
-  };
+  users[socket.id] = {id: socket.id, position: numUsers,color: colors[Math.floor((Math.random() * 9))]};
 
-  users.push(user);
-  socket.emit('welcome', user);
+  socket.emit('welcome', users[socket.id]);
 
 
   console.log(users);
@@ -47,28 +42,20 @@ io.on('connection', function (socket) {
   socket.on('click', function (data) {
     if (activeUser) {
       console.log('[CLICK AND CHANGE]');
-      socket.broadcast.to(activeUser).emit('change', data)
 
-      for (i=0; i < users.length; i++) {
-        if (users[i].id == activeUser) {
-          io.to(socket.id).emit('change', users[i]);
+      console.log('showing data')
+      console.log(data)
 
-          var old = {
-            id: users[i].id,
-            position: data.position,
-            color: data.color
-          }
+      var holdingTile = {position: users[activeUser].position, color: users[activeUser].color};
+      var clickedTile = {position: users[data.id].position, color: users[data.id].color};
 
-          users[i] = {
-            id: data.id, 
-            position: users[i].position,
-            color: users[i].color
-          }
-
-          users[data.position - 1] = old;
-          break;
-        }
-      }
+      users[activeUser].position = clickedTile.position;
+      users[activeUser].color    = clickedTile.color;
+      users[data.id].position    = holdingTile.position;
+      users[data.id].color       = holdingTile.color;
+      
+      io.to(socket.id).emit('change', users[data.id]);
+      socket.broadcast.to(activeUser).emit('change', users[activeUser]);
 
       console.log(users);
       console.log("\n");
