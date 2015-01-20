@@ -15,6 +15,7 @@ html, body{
   position: relative;
   display: none;
   cursor: pointer;
+  transition: all .200s;
 }
 
 #card h1 {
