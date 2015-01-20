@@ -2,7 +2,7 @@
 var express = require('express');
 var app = express('10.0.1.2');
 var server = require('http').createServer(app);
-var io = require('socket.io')(server);
+var io = require('socket.io', { rememberTransport: false, transports: ['WebSocket', 'Flash Socket', 'AJAX long-polling'] })(server);
 var port = process.env.PORT || 3000;
 
 server.listen(port, function () {
