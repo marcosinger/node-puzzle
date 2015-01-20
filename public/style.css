@@ -27,13 +27,13 @@ html, body{
 }
 
 #card[data-state='right-position']{
-  box-shadow: inset 0px 0px 0px 10px rgba(46,204,113,1);
+  box-shadow: inset 0px 0px 0px 20px rgba(46,204,113,1);
 }
 
 #card[data-state='wrong-position']{
-  box-shadow: inset 0px 0px 0px 10px rgba(231,76,60,1);
+  box-shadow: inset 0px 0px 0px 20px rgba(231,76,60,1);
 }
 
 #card[data-state='selected']{
-  box-shadow: inset 0px 0px 0px 10px rgba(41,128,185,1);
+  box-shadow: inset 0px 0px 0px 20px rgba(41,128,185,1);
 }
