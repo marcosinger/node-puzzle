@@ -1,20 +1,31 @@
 $(function() {
-  var socket = io.connect("http://10.0.1.2:3000");
+  var socket = io.connect("http://10.0.1.5:3001");
   var $card = $('#card');
   var cardOptions;
 
   var fillCard = function(data) {
     cardOptions = {
       id: data.id,
+      color: data.color,
       position: data.position,
-      color: data.color
+      path: data.path,
+      rightPosition: data.rightPosition,
+      positioned: data.positioned
     }
 
     $card.css({background: cardOptions.color, display: 'none'});
-    $card.find('h1').text(cardOptions.position);
+    $card.find('h1').text(cardOptions.path);
     $card.fadeIn();
     $card.css('display', 'table');
     $card.removeAttr('data-state');
+
+    if(cardOptions.positioned){
+      $card.attr('data-state', 'right-position');
+    }else{
+      $card.attr('data-state', 'wrong-position');
+    }
+
+    setTimeout(function(){$card.removeAttr('data-state')}, 5* 1000);
   }
 
   socket.on('welcome', fillCard);
@@ -25,4 +36,5 @@ $(function() {
     socket.emit('click', cardOptions);
     $(this).attr('data-state', 'selected');
   });
+
 });
