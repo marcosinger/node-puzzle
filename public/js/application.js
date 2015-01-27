@@ -1,5 +1,5 @@
-$(function() {
-  var socket = io.connect("http://10.0.1.5:3001");
+jQuery(document).ready(function($) {
+  socket = io.connect("http://localhost:3001");
   var $card = $('#card');
   var cardOptions;
 
@@ -37,4 +37,6 @@ $(function() {
     $(this).attr('data-state', 'selected');
   });
 
+  // Emit ready event.
+  socket.emit('connected');
 });
