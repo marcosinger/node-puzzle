@@ -77,7 +77,7 @@ var pM;
 var timer;
 var activeUser;
 var numUsers = 0;
-var COMPLETED_IN = 15 * 1000; // 60s
+var COMPLETED_IN = 30 * 1000; // 60s
 var RELOAD_IN = COMPLETED_IN + 7000; // 67s
 var reset, timeout;
 
