@@ -22,9 +22,9 @@ var puzzleManager = function() {
                       {path: 'A', color: '#7f8c8d', rightPosition: 0, taken: false, positioned: true},
                       {path: 'B', color: '#c0392b', rightPosition: 1, taken: false, positioned: true},
                       {path: 'C', color: '#3498db', rightPosition: 2, taken: false, positioned: true},
-                      {path: 'D', color: '#9b59b6', rightPosition: 3, taken: false, positioned: true},
-                      {path: 'E', color: '#34495e', rightPosition: 4, taken: false, positioned: true},
-                      {path: 'F', color: '#f39c12', rightPosition: 5, taken: false, positioned: true}
+                      // {path: 'D', color: '#9b59b6', rightPosition: 3, taken: false, positioned: true},
+                      // {path: 'E', color: '#34495e', rightPosition: 4, taken: false, positioned: true},
+                      // {path: 'F', color: '#f39c12', rightPosition: 5, taken: false, positioned: true},
                       //{path: 'G', color: '#d35400', rightPosition: 6, taken: false, positioned: true},
                       //{path: 'H', color: '#2ecc71', rightPosition: 7, taken: false, positioned: true},
                       //{path: 'I', color: '#1abc9c', rightPosition: 8, taken: false, positioned: true}
@@ -74,16 +74,16 @@ var puzzleManager = function() {
 }
 
 var pM;
-
+var timer;
 var activeUser;
 var numUsers = 0;
-var COMPLETED_IN = 20 * 1000; // 60s
+var COMPLETED_IN = 15 * 1000; // 60s
 var RELOAD_IN = COMPLETED_IN + 7000; // 67s
 var reset, timeout;
 
 var start = function() {
   pM = new puzzleManager();
-  if (pM.puzzleArray.length == numUsers) {
+  if (pM.puzzleArray.length == numUsers && timer !== undefined) {
     console.log('[STARTING A NEW GAME]');
 
   timeout = setTimeout(function() {
@@ -98,7 +98,11 @@ var start = function() {
 
     var clients = app.io.sockets.clients();
 
+    app.io.sockets.socket(timer).emit('start_timer', {secondsToCount: COMPLETED_IN / 1000.0});
+
     for (i=0; i < clients.length; i++) {
+      if(timer == clients[i].id){ continue; }
+
       app.io.sockets.socket(clients[i].id).emit('welcome', pM.getPuzzleCard(clients[i].id, i+1));
     }
   }
@@ -110,6 +114,27 @@ app.io.route('connected', function(req) {
   start();
 });
 
+app.io.route('timer_connected', function(req) {
+  timer = req.socket.id;
+  console.log('[TIMER CONNECTED]');
+});
+
+app.io.route('timer_expired', function(req) {
+  console.log('[TIMER EXPIRED]');
+});
+
+app.io.route('game_win', function(req) {
+  console.log('WON in: ', req.data);
+  app.io.broadcast('completed', req.data);
+
+  clearTimeout(reset);
+  clearTimeout(timeout);
+  setTimeout(function() {
+    console.log('[PREPARING TO PLAY AGAIN]');
+    start();
+  }, 5 * 1000);
+});
+
 app.io.route('click', function(req) {
   if (activeUser) {
     pM.changePuzzleCards(activeUser, req.socket.id);
@@ -117,15 +142,8 @@ app.io.route('click', function(req) {
     app.io.sockets.socket(activeUser).emit('change', pM.clientsArray[activeUser]);
 
     if(pM.isPuzzleCompleted()){
-      console.log('[COMPLETED]')
-      app.io.broadcast('completed');
-
-      clearTimeout(reset);
-      clearTimeout(timeout);
-      setTimeout(function() {
-        console.log('[PREPARING TO PLAY AGAIN]');
-        start();
-      }, 5 * 1000);
+      console.log('[COMPLETED]');
+      app.io.sockets.socket(timer).emit('pause_timer_game_won');
     }
 
     activeUser = null;
