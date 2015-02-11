@@ -108,6 +108,17 @@ var start = function() {
   }
 }
 
+var finishedIn = function(countdown){
+  var timespan = require('timespan');
+  var numeral  = require('numeral');
+
+  countdown = countdown.split(':');
+
+  var ts = new timespan.TimeSpan(0, countdown[1], countdown[0]);
+
+  return numeral((COMPLETED_IN / 1000.0) - ts.totalSeconds()).format('00:00:00');
+}
+
 app.io.route('connected', function(req) {
   ++numUsers;
   console.log('[%d connected]', numUsers);
@@ -124,8 +135,7 @@ app.io.route('timer_expired', function(req) {
 });
 
 app.io.route('game_win', function(req) {
-  console.log('WON in: ', req.data);
-  app.io.broadcast('completed', req.data);
+  app.io.broadcast('completed', finishedIn(req.data));
 
   clearTimeout(reset);
   clearTimeout(timeout);
